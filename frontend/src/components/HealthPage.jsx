@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
 export default function HealthPage({ user }) {
   const [healthData, setHealthData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/health/${encodeURIComponent(user.email)}`)
+    fetch(`${API}/health/${encodeURIComponent(user.email)}`)
       .then(res => res.json())
       .then(data => {
         setHealthData(data)
@@ -16,19 +18,19 @@ export default function HealthPage({ user }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-10 h-10 border-4 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center py-32">
+        <div className="w-8 h-8 border-2 border-emerald-500/30 border-t-emerald-400 rounded-full animate-spin" />
       </div>
     )
   }
 
   if (!healthData || !healthData.lastLogTime) {
     return (
-      <div className="text-center py-20 animate-fadeInUp">
-        <span className="text-5xl block mb-4 animate-float">🌱</span>
-        <p className="text-slate-300 text-lg font-bold">No Data Yet</p>
-        <p className="text-slate-600 text-sm mt-2 max-w-xs mx-auto">
-          Once you log your first item, your health recovery timeline will appear here showing how your body heals over time.
+      <div className="text-center py-24">
+        <span className="text-5xl block mb-4">🌱</span>
+        <p className="text-slate-300 text-lg font-bold">No data yet</p>
+        <p className="text-slate-600 text-sm mt-2 max-w-xs mx-auto leading-relaxed">
+          Log your first item and your health recovery timeline will appear here.
         </p>
       </div>
     )
@@ -36,8 +38,14 @@ export default function HealthPage({ user }) {
 
   const { hoursSinceLastLog, milestones } = healthData
 
-  // Format hours to readable string
   const formatHours = (h) => {
+    if (h < 1) return `${Math.round(h * 60)}m`
+    if (h < 24) return `${Math.round(h)}h`
+    if (h < 720) return `${Math.round(h / 24)}d`
+    return `${Math.round(h / 720)}mo`
+  }
+
+  const formatHoursFull = (h) => {
     if (h < 1) return `${Math.round(h * 60)} minutes`
     if (h < 24) return `${Math.round(h)} hours`
     if (h < 720) return `${Math.round(h / 24)} days`
@@ -45,21 +53,21 @@ export default function HealthPage({ user }) {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Time Since Last Header */}
-      <div className="glass-card rounded-3xl p-6 text-center animate-fadeInUp relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5"></div>
-        <div className="relative z-10">
-          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Time Since Last Consumption</p>
-          <p className="text-4xl font-black gradient-text">{formatHours(hoursSinceLastLog)}</p>
-          <p className="text-slate-600 text-xs mt-2">Your body is healing with every passing moment</p>
-        </div>
+    <div className="space-y-4 pb-2">
+
+      {/* Time Since Last */}
+      <div className="rounded-2xl bg-gradient-to-br from-emerald-500/15 to-cyan-500/10 border border-emerald-500/20 p-5 text-center">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Time Since Last Consumption</p>
+        <p className="text-4xl font-black bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+          {formatHoursFull(hoursSinceLastLog)}
+        </p>
+        <p className="text-slate-600 text-xs mt-2">Your body heals with every passing moment</p>
       </div>
 
-      {/* Health Recovery Timeline */}
+      {/* Milestones */}
       <div>
-        <h2 className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-4 px-1">🏥 Recovery Timeline</h2>
-        <div className="space-y-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-3 px-0.5">Recovery Timeline</p>
+        <div className="space-y-2.5">
           {milestones.map((milestone, i) => {
             const isAchieved = milestone.achieved
             const progress = Math.min(100, milestone.progress)
@@ -67,43 +75,39 @@ export default function HealthPage({ user }) {
             return (
               <div
                 key={i}
-                className={`glass-card rounded-2xl p-4 transition-all duration-500 ${
-                  isAchieved ? 'border-emerald-500/30' : ''
+                className={`rounded-2xl border p-4 transition-all duration-300 ${
+                  isAchieved
+                    ? 'bg-emerald-500/10 border-emerald-500/25'
+                    : 'bg-slate-800/50 border-slate-700/40'
                 }`}
-                style={{ animationDelay: `${i * 80}ms` }}
               >
                 <div className="flex items-start gap-3">
-                  {/* Icon */}
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${
-                    isAchieved
-                      ? 'bg-emerald-500/20 shadow-lg shadow-emerald-500/10'
-                      : 'bg-slate-800'
+                    isAchieved ? 'bg-emerald-500/20' : 'bg-slate-700/60'
                   }`}>
                     {isAchieved ? '✅' : milestone.icon}
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 mb-1">
                       <p className={`text-sm font-bold ${isAchieved ? 'text-emerald-400' : 'text-slate-300'}`}>
                         {milestone.title}
                       </p>
-                      <span className="text-[10px] text-slate-600 font-medium flex-shrink-0">
+                      <span className="text-[10px] text-slate-600 font-medium bg-slate-800/60 px-2 py-0.5 rounded-lg flex-shrink-0">
                         {formatHours(milestone.hours)}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1 leading-relaxed">{milestone.description}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed">{milestone.description}</p>
 
-                    {/* Progress Bar */}
                     {!isAchieved && (
                       <div className="mt-2.5">
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1 bg-slate-700/60 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000 progress-shine"
+                            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-1000"
                             style={{ width: `${progress}%` }}
-                          ></div>
+                          />
                         </div>
-                        <p className="text-[10px] text-slate-600 mt-1 font-medium">{progress.toFixed(0)}% complete</p>
+                        <p className="text-[10px] text-slate-600 mt-1">{progress.toFixed(0)}% there</p>
                       </div>
                     )}
                   </div>
@@ -113,6 +117,7 @@ export default function HealthPage({ user }) {
           })}
         </div>
       </div>
+
     </div>
   )
 }
