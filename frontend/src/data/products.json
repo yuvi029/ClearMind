@@ -283,7 +283,7 @@
     "units_per_pack": 25,
     "average_price_per_pack": 25.00,
     "currency": "INR",
-    "description": "Hand-rolled tobacco in tendu leaf. Higher unfiltered tar and nicotine yield."
+    "description": "Hand-rolled tobacco in tendu leaf."
   },
   {
     "id": "bidi_mangalore_ganesh",
@@ -327,7 +327,7 @@
     "units_per_pack": 1,
     "average_price_per_pack": 5.00,
     "currency": "INR",
-    "description": "Chewing tobacco mix. Nicotine yield varies by pouch size."
+    "description": "Chewing tobacco mix."
   },
   {
     "id": "chew_shikhar_gutkha",
@@ -349,7 +349,7 @@
     "units_per_pack": 1,
     "average_price_per_pack": 5.00,
     "currency": "INR",
-    "description": "Pan masala often mixed with tobacco (zarda)."
+    "description": "Pan masala often mixed with tobacco."
   },
   {
     "id": "chew_chaini_khaini",
