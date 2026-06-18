@@ -2,7 +2,8 @@
 node_modules/
 
 # Backend data (user accounts and logs - private!)
-backend/data/
+backend/data/users.json
+backend/data/logs.json
 
 # Build output
 frontend/dist/
