@@ -1,0 +1,10 @@
+{
+  "name": "clearmind",
+  "version": "2.0.0",
+  "description": "ClearMind - Nicotine Cessation Tracker",
+  "scripts": {
+    "start:backend": "cd backend && node server.js",
+    "start:frontend": "cd frontend && npm run dev",
+    "start": "cd backend && start node server.js && cd ../frontend && npm run dev"
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cig_four_square",
+    "name": "Four Square",
+    "category": "cigarette",
+    "nicotine_mg_per_unit": 1,
+    "tar_mg_per_unit": 11,
+    "units_per_pack": 10,
+    "average_price_per_pack": 100,
+    "currency": "INR",
+    "description": "Popular mid-range cigarette.",
+    "timestamp": "2026-06-18T08:58:34.426Z"
+  },
+  {
+    "id": "cig_four_square",
+    "name": "Four Square",
+    "category": "cigarette",
+    "nicotine_mg_per_unit": 1,
+    "tar_mg_per_unit": 11,
+    "units_per_pack": 10,
+    "average_price_per_pack": 100,
+    "currency": "INR",
+    "description": "Popular mid-range cigarette.",
+    "timestamp": "2026-06-18T08:58:35.565Z"
+  },
+  {
+    "id": "cig_four_square",
+    "name": "Four Square",
+    "category": "cigarette",
+    "nicotine_mg_per_unit": 1,
+    "tar_mg_per_unit": 11,
+    "units_per_pack": 10,
+    "average_price_per_pack": 100,
+    "currency": "INR",
+    "description": "Popular mid-range cigarette.",
+    "timestamp": "2026-06-18T08:58:38.794Z"
+  }
+]

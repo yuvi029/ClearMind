@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Backend data (user accounts and logs - private!)
+backend/data/
+
+# Build output
+frontend/dist/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
