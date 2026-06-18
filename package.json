@@ -6,5 +6,8 @@
     "start:backend": "cd backend && node server.js",
     "start:frontend": "cd frontend && npm run dev",
     "start": "cd backend && start node server.js && cd ../frontend && npm run dev"
+  },
+  "dependencies": {
+    "cors": "^2.8.6"
   }
 }

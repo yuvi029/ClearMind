@@ -7,7 +7,7 @@ import History from './components/History'
 import HealthPage from './components/HealthPage'
 import SettingsPage from './components/SettingsPage'
 
-const API = 'http://localhost:5000/api'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 function App() {
   const [user, setUser] = useState(null)

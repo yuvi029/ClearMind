@@ -4,17 +4,25 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*'
+}));
 app.use(express.json());
 
 // ===========================
 //  DATABASE FILE PATHS
 // ===========================
 const DATA_DIR = path.join(__dirname, 'data');
-const productsPath = path.join(__dirname, '../frontend/src/data/products.json');
+
+// In production (Render), products.json must be inside the backend folder
+// Copy frontend/src/data/products.json into backend/data/products.json
+const productsPath = process.env.NODE_ENV === 'production'
+  ? path.join(DATA_DIR, 'products.json')
+  : path.join(__dirname, '../frontend/src/data/products.json');
+
 const usersPath = path.join(DATA_DIR, 'users.json');
 const logsPath = path.join(DATA_DIR, 'logs.json');
 
@@ -38,7 +46,7 @@ const readJSON = (filePath) => {
     try {
         return JSON.parse(fs.readFileSync(filePath, 'utf8'));
     } catch {
-        return filePath === usersPath ? {} : {};
+        return {};
     }
 };
 
@@ -46,14 +54,12 @@ const writeJSON = (filePath, data) => {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 };
 
-// Get today's date string
 const getToday = () => new Date().toISOString().split('T')[0];
 
 // ===========================
 //  AUTH ROUTES
 // ===========================
 
-// Signup
 app.post('/api/auth/signup', (req, res) => {
     try {
         const { email, password, name } = req.body;
@@ -85,7 +91,6 @@ app.post('/api/auth/signup', (req, res) => {
         };
         writeJSON(usersPath, users);
 
-        // Initialize empty logs
         const logs = readJSON(logsPath);
         logs[email] = [];
         writeJSON(logsPath, logs);
@@ -98,7 +103,6 @@ app.post('/api/auth/signup', (req, res) => {
     }
 });
 
-// Login
 app.post('/api/auth/login', (req, res) => {
     try {
         const { email, password } = req.body;
@@ -122,7 +126,6 @@ app.post('/api/auth/login', (req, res) => {
     }
 });
 
-// Update user settings
 app.put('/api/auth/settings/:email', (req, res) => {
     try {
         const users = readJSON(usersPath);
@@ -156,10 +159,9 @@ app.get('/api/products', (req, res) => {
 });
 
 // ===========================
-//  LOG ROUTES (User-scoped)
+//  LOG ROUTES
 // ===========================
 
-// Get all logs for a user
 app.get('/api/logs/:email', (req, res) => {
     try {
         const logs = readJSON(logsPath);
@@ -169,7 +171,6 @@ app.get('/api/logs/:email', (req, res) => {
     }
 });
 
-// Add a new log
 app.post('/api/logs/:email', (req, res) => {
     try {
         const newLog = req.body;
@@ -187,7 +188,6 @@ app.post('/api/logs/:email', (req, res) => {
     }
 });
 
-// Delete a single log by timestamp
 app.delete('/api/logs/:email/:timestamp', (req, res) => {
     try {
         const logs = readJSON(logsPath);
@@ -200,7 +200,6 @@ app.delete('/api/logs/:email/:timestamp', (req, res) => {
     }
 });
 
-// Delete ALL logs for a user
 app.delete('/api/logs/:email', (req, res) => {
     try {
         const logs = readJSON(logsPath);
@@ -213,17 +212,15 @@ app.delete('/api/logs/:email', (req, res) => {
 });
 
 // ===========================
-//  STATS & ANALYTICS ROUTES
+//  STATS & ANALYTICS
 // ===========================
 
-// Get summary stats for a user
 app.get('/api/stats/:email', (req, res) => {
     try {
         const logs = readJSON(logsPath);
         const userLogs = logs[req.params.email] || [];
         const today = getToday();
 
-        // Group by date
         const daily = {};
         userLogs.forEach(log => {
             if (!log.timestamp) return;
@@ -237,10 +234,8 @@ app.get('/api/stats/:email', (req, res) => {
             daily[date].tar += log.tar_mg_per_unit;
         });
 
-        // Today's stats
         const todayStats = daily[today] || { date: today, count: 0, spent: 0, nicotine: 0, tar: 0 };
 
-        // This week's stats (last 7 days)
         const weekDates = [];
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
@@ -256,7 +251,6 @@ app.get('/api/stats/:email', (req, res) => {
             tar: acc.tar + d.tar
         }), { count: 0, spent: 0, nicotine: 0, tar: 0 });
 
-        // All-time
         const allTime = userLogs.reduce((acc, log) => ({
             count: acc.count + 1,
             spent: acc.spent + (log.custom_price || (log.average_price_per_pack / log.units_per_pack)),
@@ -264,7 +258,6 @@ app.get('/api/stats/:email', (req, res) => {
             tar: acc.tar + log.tar_mg_per_unit
         }), { count: 0, spent: 0, nicotine: 0, tar: 0 });
 
-        // Streak: consecutive days with 0 logs (from today backwards)
         let smokeFreeStreak = 0;
         const checkDate = new Date();
         while (true) {
@@ -299,7 +292,6 @@ app.get('/api/health/:email', (req, res) => {
         const logs = readJSON(logsPath);
         const userLogs = logs[req.params.email] || [];
 
-        // Find the last log timestamp
         const lastLog = userLogs.length > 0 ? userLogs[userLogs.length - 1] : null;
         const lastLogTime = lastLog ? new Date(lastLog.timestamp).getTime() : null;
         const now = Date.now();
@@ -334,7 +326,9 @@ app.get('/api/health/:email', (req, res) => {
     }
 });
 
-// Start the server
+// ===========================
+//  START SERVER
+// ===========================
 app.listen(PORT, () => {
     console.log('');
     console.log('  🧠 ClearMind Backend v2.0');
