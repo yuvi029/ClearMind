@@ -176,6 +176,9 @@ function App() {
         {currentPage === 'health' && <HealthPage user={user} />}
         {currentPage === 'settings' && <SettingsPage user={user} onLogout={handleLogout} onUpdateSettings={handleUpdateSettings} />}
       </main>
+      <footer className="text-center text-slate-600 text-xs py-4">
+        Created by Yuvraj with ❤️ — Stay Healthy 🌿
+      </footer>
     </div>
   )
 }
